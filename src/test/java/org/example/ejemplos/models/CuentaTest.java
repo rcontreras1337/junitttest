@@ -240,60 +240,79 @@ class CuentaTest {
         );
     }
 
-    // Con esta notacionm podemos indicarle la condiciona de que sistemas operativos queremos involucar en el test
-    // unitario
-    @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void testSoloWindows() {
-        assertTrue(true);
+    // @Nested = inner class clase adentro de otra clase
+    // no hay una regla de oro que explique como usar nested pero es suficiente con usuarlo para
+    // darle una categorizacion a las pruebas unitari
+    @Nested
+    @DisplayName("Validar Sistemas Operativos")
+    class TestWindows {
+        // Con esta notacionm podemos indicarle la condiciona de que sistemas operativos queremos involucar en el test
+        // unitario
+        @Test
+        @DisplayName("Windows")
+        @EnabledOnOs(OS.WINDOWS)
+        void testSoloWindows() {
+            assertTrue(true);
+        }
+
+        // Se podria usar @DisableOnOs para decir en que windows no habilitar
+
+        @Test
+        @DisplayName("MAC O LINUX")
+        @EnabledOnOs({OS.MAC, OS.LINUX})
+        void testSoloMacLinux() {
+            assertTrue(true);
+        }
     }
 
-    // Se podria usar @DisableOnOs para decir en que windows no habilitar
+    @Nested
+    class TestJRE {
+        @Test
+        @EnabledOnJre(JRE.JAVA_8)
+        void java8() {
+        }
 
-    @Test
-    @EnabledOnOs({OS.MAC, OS.LINUX})
-    void testSoloMacLinux() {
-        assertTrue(true);
+        @Test
+        @EnabledOnJre(JRE.JAVA_11)
+        void java11() {
+        }
     }
 
-    @Test
-    @EnabledOnJre(JRE.JAVA_8)
-    void java8() {
+    @Nested
+    class TestPropiedadesSistema {
+        // si existe ciertas propiedades del sistema
+        // Se puede trabajar con expresiones regulares tambien en el matches
+        @Test
+        @EnabledIfSystemProperty(named = "java.version", matches = "1.8.0_111")
+        void propiedadesSistema() {
+            Properties properties = System.getProperties();
+            properties.forEach((key, value) -> System.out.println(key + ":" + value));
+        }
+
+        @Test
+        //@EnabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
+        @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
+        void testSolo64Bits() {
+        }
     }
 
-    @Test
-    @EnabledOnJre(JRE.JAVA_11)
-    void java11() {
-    }
-    // si existe ciertas propiedades del sistema
+    @Nested
+    class TestVariablesAmbiente {
+        //Variables de ambiente del sistema operativo
 
+        @Test
+        @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = ".*jdk-18.0.1.1.*")
+        void imprimirVariablesAmbiente() {
+            Map<String, String> getenv = System.getenv();
+            getenv.forEach((key, value) -> System.out.println(key + ":" + value));
+        }
 
-    // Se puede trabajar con expresiones regulares tambien en el matches
-    @Test
-    @EnabledIfSystemProperty(named = "java.version", matches = "1.8.0_111")
-    void propiedadesSistema() {
-        Properties properties = System.getProperties();
-        properties.forEach((key, value) -> System.out.println(key + ":" + value));
-    }
-
-    @Test
-    //@EnabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
-    @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
-    void testSolo64Bits() {
+        // Assumptions sirven para programar un booleando de forma programatica, por ejemplo si necesito habilitar o
+        // deshabilitar una prueba unitaria
+        // de acuerdo a alguna variable booleana del codigo como tal
     }
 
-    //Variables de ambiente del sistema operativo
 
-    @Test
-    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = ".*jdk-18.0.1.1.*")
-    void imprimirVariablesAmbiente() {
-        Map<String, String> getenv = System.getenv();
-        getenv.forEach((key, value) -> System.out.println(key + ":" + value));
-    }
-
-    // Assumptions sirven para programar un booleando de forma programatica, por ejemplo si necesito habilitar o
-    // deshabilitar una prueba unitaria
-    // de acuerdo a alguna variable booleana del codigo como tal
     @Test
     void testSaldoCuentaDev() {
         // Validar que exista en las configuraciones del arraque este string DEV
@@ -312,8 +331,9 @@ class CuentaTest {
         boolean esDev = "DEV".equals(System.getProperty("ENV"));
         // De esta forma todo lo que viene abajo del assumtion se ejecutara o no en funcion del booleano
         // Si el asuming no es true, no entrara al lambda y solo se ejecutarian los que estan afuera
-        assumingThat(esDev, () ->{
-            Cuenta cuenta = new Cuenta("Ruben", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta("Ruben", new BigDecimal("1000.12345"));
+        assumingThat(esDev, () -> {
+
             assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
         });
 
@@ -321,7 +341,44 @@ class CuentaTest {
         assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0); // negada a la de arriba
     }
 
-    // @Nested = inner class clase adentro de otra clase
-    
+    // se puede definir el numero de repeticiones
+    // tambien podemos cambiar como se mostraran las repeticiones pasandole los valores
+    // @RepeatedTest(5)
+    @RepeatedTest(value = 5, name = "Rep {currentRepetition} de {totalRepetitions}")
+    void testSaldoCuentaDevRepetitivo() {
+        // Validar que exista en las configuraciones del arraque este string DEV
+        boolean esDev = "DEV".equals(System.getProperty("ENV"));
+        // De esta forma todo lo que viene abajo del assumtion se ejecutara o no en funcion del booleano
+        // Si el asuming no es true, no entrara al lambda y solo se ejecutarian los que estan afuera
+        Cuenta cuenta = new Cuenta("Ruben", new BigDecimal("1000.12345"));
+        assumingThat(esDev, () -> {
+
+            assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
+        });
+
+        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0); // negada a la de arriba
+    }
+
+    @RepeatedTest(value = 5, name = "Rep {currentRepetition} de {totalRepetitions}")
+    void testSaldoCuentaDevRepetitivoInfo(RepetitionInfo info) {
+        // Recibe el parametro d elas repeticiones para poder cambiar de forma programatica en cada iteracion algo del test
+        // como si fuera el index de un array
+        if (info.getCurrentRepetition() == 3){
+            System.out.println("repeticion numero " + info.getCurrentRepetition());
+        }
+        // Validar que exista en las configuraciones del arraque este string DEV
+        boolean esDev = "DEV".equals(System.getProperty("ENV"));
+        // De esta forma todo lo que viene abajo del assumtion se ejecutara o no en funcion del booleano
+        // Si el asuming no es true, no entrara al lambda y solo se ejecutarian los que estan afuera
+        Cuenta cuenta = new Cuenta("Ruben", new BigDecimal("1000.12345"));
+        assumingThat(esDev, () -> {
+
+            assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
+        });
+
+        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0); // negada a la de arriba
+    }
 
 }
