@@ -1,0 +1,43 @@
+-------------------------------------------------------------------------------
+Test set: org.example.ejemplos.models.CuentaTest
+-------------------------------------------------------------------------------
+Tests run: 67, Failures: 8, Errors: 2, Skipped: 4, Time elapsed: 5.318 s <<< FAILURE! - in org.example.ejemplos.models.CuentaTest
+pruebaTimeout2  Time elapsed: 1.004 s  <<< ERROR!
+java.util.concurrent.TimeoutException: pruebaTimeout2() timed out after 1000 milliseconds
+
+testDebitoCuentaCsvSource2{String, String, String, String}[1]  Time elapsed: 0.002 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <John> but was: <Andres>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvSource2(CuentaTest.java:457)
+
+testDebitoCuentaCsvSource2{String, String, String, String}[3]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <maria> but was: <Maria>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvSource2(CuentaTest.java:457)
+
+testDebitoCuentaCsvSource2{String, String, String, String}[5]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <Lucas> but was: <Luca>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvSource2(CuentaTest.java:457)
+
+testDebitoCuentaCsvSource2{String, String, String, String}[6]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvSource2(CuentaTest.java:458)
+
+testDebitoCuentaCsvFileSource2{String, String, String, String}[1]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <John> but was: <Andres>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvFileSource2(CuentaTest.java:471)
+
+testDebitoCuentaCsvFileSource2{String, String, String, String}[3]  Time elapsed: 0 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <maria> but was: <Maria>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvFileSource2(CuentaTest.java:471)
+
+testDebitoCuentaCsvFileSource2{String, String, String, String}[5]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <Lucas> but was: <Luca>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvFileSource2(CuentaTest.java:471)
+
+testDebitoCuentaCsvFileSource2{String, String, String, String}[6]  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaCsvFileSource2(CuentaTest.java:473)
+
+testDebitoCuentaParametrizado{String}[4]  Time elapsed: 0.001 s  <<< ERROR!
+org.example.ejemplos.exceptions.DineroInsuficienteException: Dinero insuficiente
+	at org.example.ejemplos.models.CuentaTest$PruebasParametizadasTest.testDebitoCuentaParametrizado(CuentaTest.java:419)
+

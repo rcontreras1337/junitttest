@@ -10,22 +10,31 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
 class CuentaTest {
 
+    private TestInfo testInfo;
+    private TestReporter testReporter;
+
     // cada vez que se inicia un nuevo metodo test este metodo se iniciara otra vez desde 0
     // por lo que quedaria limpio y si se repitieran cosas podrian declararse de forma global y luego solo editar
     // esa referencia de objeto instanciado
     @BeforeEach
-    void initMetodoTest() {
+    void initMetodoTest(TestInfo testInfo, TestReporter testReporter) {
+        this.testInfo = testInfo;
+        this.testReporter = testReporter;
         System.out.println("Iniciando el metodo.");
+        testReporter.publishEntry(" ejecutando: " + testInfo.getDisplayName() + " " + testInfo.getTestMethod().orElse(null).getName()
+                + " con las etiquetas " + testInfo.getTags());
     }
 
     @AfterEach
@@ -44,10 +53,16 @@ class CuentaTest {
         System.out.println("Fin Tests Unitarios");
     }
 
+    @Tag("Cuenta")
     @Test
     // Cambia el nombre con el que se muestra la prueba unitaria en vez de mostrar el metodo de la prueba unitaria
     @DisplayName("Probando el nombre de la cuenta \uD83E\uDD21")
     void TestAccountName() {
+        testReporter.publishEntry(testInfo.getTags().toString());
+        // de esta forma si se necesita realizar algo en especifico por cada tag se puede utilizar estas variables
+        if (testInfo.getTags().contains("Cuenta")) {
+            testReporter.publishEntry("hacer algo con la etiqueta cuenta");
+        }
         Cuenta cuenta = new Cuenta("Ruben", new BigDecimal("1000.1234"));
         String esperado = "Ruben";
         String real = cuenta.getPersona();
@@ -476,4 +491,28 @@ class CuentaTest {
         return Arrays.asList("100", "200", "300", "500", "700", "1000.12345");
     }
 
+    @Nested
+    @Tag("timeout")
+    class EjemploTimeoutTest {
+        @Test
+        @Timeout(1)
+        void pruebaTimeout() throws InterruptedException {
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+
+        // Por defecto la unidad de tiempo es Segundos pero se podria cambiare asi
+        @Test
+        @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
+        void pruebaTimeout2() throws InterruptedException {
+            //Realiza una pausa
+            TimeUnit.MILLISECONDS.sleep(1100);
+        }
+
+        @Test
+        void testTimeoutAssertions() {
+            assertTimeout(Duration.ofSeconds(5), () -> {
+                TimeUnit.MILLISECONDS.sleep(4000);
+            });
+        }
+    }
 }
